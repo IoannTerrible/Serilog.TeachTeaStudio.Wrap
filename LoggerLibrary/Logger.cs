@@ -1,76 +1,92 @@
-﻿using Serilog;
-using Serilog.Events;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using Serilog;
+using Serilog.Events;
 
-namespace LoggerLibrary
+namespace LoggerLibrary;
+
+public class Logger
 {
-    public class Logger
-    {
-        private readonly ILoggerConfig _loggerConfig;
+	private readonly ILoggerConfig _loggerConfig;
 
-        public Logger(ILoggerConfig loggerConfig)
-        {
-            _loggerConfig = loggerConfig;
-        }
+	public Logger(ILoggerConfig loggerConfig)
+	{
+		_loggerConfig = loggerConfig ?? throw new ArgumentNullException(nameof(loggerConfig));
+	}
 
-        public async Task LogEventAsync(LogEventLevel logEventLevel, string message, Exception? ex = null)
-        {
-            var info = new StringBuilder($"Message: {message}");
+	public async Task LogEventAsync(
+		LogEventLevel logEventLevel,
+		string message,
+		Exception? ex = null
+	)
+	{
+		var logMessage = BuildLogMessage(logEventLevel, message, ex);
+		await Task.Run(() => Log.Write(logEventLevel, logMessage));
+	}
 
-            if (logEventLevel == LogEventLevel.Debug)
-            {
-                var assemblyVersion = GetAssemblyVersion();
-                if (!string.IsNullOrEmpty(assemblyVersion))
-                {
-                    info.Append($" AssemblyVersion: {assemblyVersion}");
-                }
-            }
+	public void LogEvent(LogEventLevel logEventLevel, string message, Exception? ex = null)
+	{
+		var logMessage = BuildLogMessage(logEventLevel, message, ex);
+		Log.Write(logEventLevel, logMessage);
+	}
 
-            if (ex != null)
-            {
-                info.AppendLine($" Exception: {ex.Message}");
-                var stackTrace = new StackTrace(ex, true);
-                var frame = GetRelevantFrame(stackTrace);
-                if (frame != null)
-                {
-                    string fileName = Path.GetFileName(frame.GetFileName());
-                    info.AppendLine($" File: {fileName}, Line: {frame.GetFileLineNumber()}, Column: {frame.GetFileColumnNumber()}, Method: {frame.GetMethod()}");
-                }
-            }
+	private static string BuildLogMessage(
+		LogEventLevel logEventLevel,
+		string message,
+		Exception? ex
+	)
+	{
+		var info = new StringBuilder($"Message: {message}");
 
-            await Task.Run(() => Log.Write(logEventLevel, info.ToString()));
-        }
+		if (logEventLevel == LogEventLevel.Debug)
+		{
+			var assemblyVersion = GetAssemblyVersion();
+			if (!string.IsNullOrEmpty(assemblyVersion))
+			{
+				info.Append($" AssemblyVersion: {assemblyVersion}");
+			}
+		}
 
-        private static StackFrame? GetRelevantFrame(StackTrace stackTrace)
-        {
-            for (int i = 0; i < stackTrace.FrameCount; i++)
-            {
-                var frame = stackTrace.GetFrame(i);
-                if (frame.GetFileLineNumber() != 0)
-                {
-                    return frame;
-                }
-            }
-            return null;
-        }
+		if (ex != null)
+		{
+			info.AppendLine($" Exception: {ex.Message}");
+			var frame = GetRelevantFrame(new StackTrace(ex, true));
+			if (frame != null)
+			{
+				string? fileName = Path.GetFileName(frame.GetFileName());
+				info.AppendLine(
+					$" File: {fileName}, Line: {frame.GetFileLineNumber()}, Column: {frame.GetFileColumnNumber()}, Method: {frame.GetMethod()}"
+				);
+			}
+		}
 
-        private static string? GetAssemblyVersion()
-        {
-            try
-            {
-                var assembly = Assembly.GetEntryAssembly();
-                var version = assembly?.GetName().Version;
-                return version?.ToString();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to get assembly version");
-                return null;
-            }
-        }
-    }
+		return info.ToString();
+	}
+
+	private static StackFrame? GetRelevantFrame(StackTrace stackTrace)
+	{
+		foreach (var frame in stackTrace.GetFrames() ?? Enumerable.Empty<StackFrame>())
+		{
+			if (frame.GetFileLineNumber() != 0)
+			{
+				return frame;
+			}
+		}
+		return null;
+	}
+
+	private static string? GetAssemblyVersion()
+	{
+		try
+		{
+			var assembly = Assembly.GetEntryAssembly();
+			return assembly?.GetName().Version?.ToString();
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "Failed to get assembly version");
+			return null;
+		}
+	}
 }

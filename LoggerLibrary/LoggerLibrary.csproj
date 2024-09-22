@@ -4,18 +4,24 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Version>0.1.0</Version>
-		<PackageId>Serilog.TeachTeaStudio.Wrap</PackageId>
+		<Version>0.1.1</Version>
+		<PackageId>Serilog.TechTeaStudio.Wrap</PackageId>
 		<Authors>Ronald Ryan</Authors>
-		<Company>Teach Tea Studio</Company>
+		<Company>Tech Tea Studio</Company>
 		<Description>A logging library for .NET applications using Serilog, providing easy configuration and integration.</Description>
 		<PackageTags>Serilog, Logging, DependencyInjection, .NET</PackageTags>
-		<Copyright>Copyright © Teach Tea Studio 2024</Copyright>
-		<RepositoryUrl>https://github.com/IoannTerrible/Serilog.TeachTeaStudio.Wrap</RepositoryUrl>
-		<ProjectUrl>https://github.com/IoannTerrible/Serilog.TeachTeaStudio.Wrap#readme</ProjectUrl>
+		<Copyright>Copyright © Tech Tea Studio 2024</Copyright>
+		<RepositoryUrl>https://github.com/IoannTerrible/Serilog.TechTeaStudio.Wrap</RepositoryUrl>
+		<ProjectUrl>https://github.com/IoannTerrible/Serilog.TechTeaStudio.Wrap</ProjectUrl>
 		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
-
+	<PropertyGroup>
+	<PackageReleaseNotes>
+		Initial release of the logging library for .NET applications using Serilog.
+		(I fix id)
+		Provides simple configuration, integration, and support for various logging sinks.
+	</PackageReleaseNotes>
+	</PropertyGroup>
 	<PropertyGroup>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
