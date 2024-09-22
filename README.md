@@ -1,4 +1,4 @@
-# Serilog.TeachTeaStudio.Wrap
+# Serilog.TechTeaStudio.Wrap
 A logging library for .NET applications using Serilog, providing easy configuration and integration.
 
 ## Third-Party Licenses
